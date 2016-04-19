@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PP开车</title>
+    <link rel="stylesheet" href="aerodyne.css">
+    <script src="jquery-1.11.3.min.js"></script>
+</head>
+
+<body>
+    <div class="aerodyne">
+        <div class="car ">
+            <div class="car-body car_shake">
+                <div class="window left-window">PP租车</div>
+                <div class="window right-window"></div>
+                <div class="light"></div>
+                <div class="left-wheel"></div>
+                <div class="right-wheel"></div>
+            </div>
+        </div>
+        <div class="page_bg">
+            <div class="sky"></div>
+            <div class="tree"></div>
+            <div class="ground"></div>
+        </div>
+        <div class="cloud">
+            <img class="cloud1" src="./images/cloud1.png">
+            <img class="cloud2" src="./images/cloud2.png">
+            <img class="cloud3" src="./images/cloud3.png">
+            <img class="cloud4" src="./images/cloud4.png">
+            <img class="cloud5" src="./images/cloud1.png">
+            <img class="cloud6" src="./images/cloud2.png">
+            <img class="cloud7" src="./images/cloud3.png">
+            <img class="cloud8" src="./images/cloud3.png">
+        </div>
+        <div class="bar">
+            <img src="./images/bar.png" alt="蘑菇">
+        </div>
+        <div class="end">
+            <span>
+                Game Over!<br>
+                <button class="btn-retry">Retry</button>
+            </span>
+        </div>
+        <div class="timeBox">
+            Time：<span class="time">0</span>s
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+    $(function() {
+        handle();
+    });
+    var totalTime = 0;
+    var timeInterval;
+
+    function handle() {
+        //绑定键盘事件
+        $("body").keydown(function(event) {
+            var direction;
+            switch (event.keyCode) {
+                case 37: //左键
+                    direction = 'left';
+                    break;
+                case 38: //向上键
+                    direction = 'up';
+                    break;
+                case 39: //右键
+                    direction = 'right';
+                    break;
+                case 40: //向下键
+                    direction = 'down';
+                    break;
+                default:
+                    break;
+            }
+            carMove(direction);
+        });
+        setInterval(function() {
+            detection();
+        }, 10);
+
+        timeInterval = setInterval(function() {
+            totalTime++;
+            $('.time').html(totalTime);
+        }, 1000);
+
+        $('.btn-retry').on('click',function(){
+             location.reload();
+        });
+    }
+
+    //Game over
+    function endGame() {
+        $('.bar, .car-body, .page_bg').css('-webkit-animation-play-state','paused');
+        $('.end').css('display','block');
+        if(timeInterval){
+            clearInterval(timeInterval);
+        }
+    }
+
+    //检测碰撞
+    function detection() {
+        var car = $('.car'),
+            bar = $('.bar');
+        if (impact(car, bar)) {
+            endGame();
+        }
+    }
+
+    function impact(el1, el2) {
+        var e1 = getDefaultStyle(el1);
+        var e2 = getDefaultStyle(el2);
+
+        if ( e1.x - e2.x < e2.w && e2.x - e1.x < e1.w && e1.y + e1.h > e2.y) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function getDefaultStyle(obj) {
+        return {
+            'x': obj.offset().left,
+            'y': obj.offset().top,
+            'w': obj.width(),
+            'h': obj.height()
+        };
+    }
+
+    //方向键控制车的移动
+    function carMove(direction) {
+        switch (direction) {
+            case 'left': //左键
+                var left = parseInt($('.car').css('left'));
+                if (left > 10) {
+                    $('.car').css('left', left - 10 + 'px');
+                }
+                break;
+            case 'up': //向上键
+                if ($('.car').hasClass('carFly')) {
+                    return;
+                }
+
+                $('.car-body').removeClass('car_shake').addClass('carFly-shake');
+                $('.car').addClass('carFly');
+                setTimeout(function() {
+                    $('.car').removeClass('carFly');
+                    $('.car-body').addClass('car_shake').removeClass('carFly-shake');
+                }, 1000);
+
+                break;
+            case 'right': //右键
+                var left = parseInt($('.car').css('left'));
+                if (left < $(window).width() - 210) {
+                    $('.car').css('left', left + 10 + 'px');
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    </script>
+</body>
+
+</html>
